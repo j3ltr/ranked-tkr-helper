@@ -1,0 +1,18 @@
+[
+  {
+    "modid": "${modid}",
+    "name": "Ranked TKR Helper",
+    "description": "A helper mod for Ranked TKR.",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "url": "https://github.com/j3ltr/ranked-tkr-helper/",
+    "updateUrl": "",
+    "authorList": [
+      "j3ltr"
+    ],
+    "credits": "",
+    "logoFile": "",
+    "screenshots": [],
+    "dependencies": []
+  }
+]

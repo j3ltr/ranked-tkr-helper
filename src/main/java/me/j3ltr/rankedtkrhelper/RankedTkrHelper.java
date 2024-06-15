@@ -55,6 +55,11 @@ public class RankedTkrHelper {
 
     public boolean isPlayerOnHypixel() {
         Minecraft minecraft = Minecraft.getMinecraft();
+
+        if (minecraft.isSingleplayer()) {
+            return false;
+        }
+
         String serverIp = minecraft.getCurrentServerData().serverIP;
 
         return serverIp.endsWith("hypixel.net");

@@ -1,7 +1,7 @@
 package me.j3ltr.rankedtkrhelper;
 
-import com.google.gson.JsonSyntaxException;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
 import me.j3ltr.rankedtkrhelper.entities.race.RacePlacement;
 import net.minecraft.client.Minecraft;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
@@ -76,7 +76,11 @@ public class RaceListener {
             try {
                 JsonObject response = mod.getGson().fromJson(messageText, JsonObject.class);
 
-                if (response.has("gametype") && response.get("gametype").getAsString().equals("GINGERBREAD")) {
+                if (response == null) {
+                    return;
+                }
+                if (response.has("gametype") &&
+                    response.get("gametype").getAsString().equals("GINGERBREAD")) {
                     raceHandler.handleServerInfoReceived(response);
                 }
 

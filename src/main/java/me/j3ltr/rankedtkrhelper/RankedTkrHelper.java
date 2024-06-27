@@ -6,7 +6,6 @@ import me.j3ltr.rankedtkrhelper.commands.RankedTkrHelperCommand;
 import me.j3ltr.rankedtkrhelper.entities.race.Race;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiNewChat;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatStyle;
 import net.minecraft.util.EnumChatFormatting;
@@ -32,8 +31,6 @@ public class RankedTkrHelper {
     private Race currentRace = null;
     private final List<Race> previousRaces = new ArrayList<>();
     private HashMap<String, Long> ignToDiscordId = null;
-
-    private GuiScreen displayScreen = null;
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
@@ -107,19 +104,5 @@ public class RankedTkrHelper {
 
     public void setIgnToDiscordId(HashMap<String, Long> ignToDiscordId) {
         this.ignToDiscordId = ignToDiscordId;
-    }
-
-    public void setDisplayScreen(GuiScreen displayScreen) {
-        this.displayScreen = displayScreen;
-    }
-
-    @SubscribeEvent
-    public void onTick(TickEvent.ClientTickEvent event) {
-        if (event.phase != TickEvent.Phase.START) return;
-
-        if (displayScreen != null) {
-            Minecraft.getMinecraft().displayGuiScreen(displayScreen);
-            displayScreen = null;
-        }
     }
 }

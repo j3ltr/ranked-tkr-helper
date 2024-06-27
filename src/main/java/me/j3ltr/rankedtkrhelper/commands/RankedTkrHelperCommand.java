@@ -1,5 +1,6 @@
 package me.j3ltr.rankedtkrhelper.commands;
 
+import gg.essential.api.utils.GuiUtil;
 import me.j3ltr.rankedtkrhelper.Config;
 import me.j3ltr.rankedtkrhelper.RankedTkrHelper;
 import net.minecraft.command.CommandBase;
@@ -34,7 +35,7 @@ public class RankedTkrHelperCommand extends CommandBase {
 
     @Override
     public void processCommand(ICommandSender sender, String[] args) throws CommandException {
-        mod.setDisplayScreen(Config.INSTANCE.gui());
+        GuiUtil.open(Config.INSTANCE.gui());
     }
 
     @Override

@@ -2,9 +2,11 @@ package me.j3ltr.rankedtkrhelper;
 
 import com.google.gson.Gson;
 import me.j3ltr.rankedtkrhelper.commands.LastRaceCommand;
+import me.j3ltr.rankedtkrhelper.commands.RankedTkrHelperCommand;
 import me.j3ltr.rankedtkrhelper.entities.race.Race;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiNewChat;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatStyle;
 import net.minecraft.util.EnumChatFormatting;
@@ -13,6 +15,8 @@ import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -29,11 +33,15 @@ public class RankedTkrHelper {
     private final List<Race> previousRaces = new ArrayList<>();
     private HashMap<String, Long> ignToDiscordId = null;
 
+    private GuiScreen displayScreen = null;
+
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
         RaceHandler raceHandler = new RaceHandler(this);
+        MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.register(new RaceListener(this, raceHandler));
         ClientCommandHandler.instance.registerCommand(new LastRaceCommand(this));
+        ClientCommandHandler.instance.registerCommand(new RankedTkrHelperCommand(this));
     }
 
     public void sendMessage(String message) {
@@ -99,5 +107,19 @@ public class RankedTkrHelper {
 
     public void setIgnToDiscordId(HashMap<String, Long> ignToDiscordId) {
         this.ignToDiscordId = ignToDiscordId;
+    }
+
+    public void setDisplayScreen(GuiScreen displayScreen) {
+        this.displayScreen = displayScreen;
+    }
+
+    @SubscribeEvent
+    public void onTick(TickEvent.ClientTickEvent event) {
+        if (event.phase != TickEvent.Phase.START) return;
+
+        if (displayScreen != null) {
+            Minecraft.getMinecraft().displayGuiScreen(displayScreen);
+            displayScreen = null;
+        }
     }
 }

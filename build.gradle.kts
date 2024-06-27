@@ -73,16 +73,8 @@ dependencies {
     minecraft("com.mojang:minecraft:1.8.9")
     mappings("de.oceanlabs.mcp:mcp_stable:22-1.8.9")
     forge("net.minecraftforge:forge:1.8.9-11.15.1.2318-1.8.9")
-//    shadowImpl("com.squareup.okhttp3:okhttp:4.12.0")
-
-    // If you don't want mixins, remove these lines
-//    shadowImpl("org.spongepowered:mixin:0.7.11-SNAPSHOT") {
-//        isTransitive = false
-//    }
-//    annotationProcessor("org.spongepowered:mixin:0.8.5-SNAPSHOT")
-
-    // If you don't want to log in with your real minecraft account, remove this line
     shadowImpl("gg.essential:loader-launchwrapper:1.2.1")
+    compileOnly("gg.essential:vigilance-1.8.9-forge:297")
     compileOnly("org.jetbrains.kotlin:kotlin-stdlib:2.0.0")
     runtimeOnly("me.djtheredstoner:DevAuth-forge-legacy:1.1.2")
 }

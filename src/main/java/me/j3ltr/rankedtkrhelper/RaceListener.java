@@ -38,7 +38,7 @@ public class RaceListener {
     // TODO: Fix onWorldLoad also firing when pausing for the first time after the world has loaded.
     @SubscribeEvent
     public void onWorldLoad(WorldEvent.Load event) {
-        if (!mod.isPlayerOnHypixel()) {
+        if (!mod.isPlayerOnHypixel() || !Config.isEnabled) {
             return;
         }
 
@@ -49,7 +49,7 @@ public class RaceListener {
 
     @SubscribeEvent
     public void onPlayerTick(TickEvent.PlayerTickEvent event) {
-        if (!mod.isPlayerOnHypixel()) {
+        if (!mod.isPlayerOnHypixel()  || !Config.isEnabled) {
             return;
         }
 
@@ -62,7 +62,7 @@ public class RaceListener {
 
     @SubscribeEvent
     public void onClientChatReceived(ClientChatReceivedEvent event) {
-        if (!mod.isPlayerOnHypixel()) {
+        if (!mod.isPlayerOnHypixel()  || !Config.isEnabled) {
             return;
         }
 

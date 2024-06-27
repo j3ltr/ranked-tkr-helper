@@ -73,7 +73,7 @@ public class RankedTkrHelper {
     public boolean isPlayerOnHypixel() {
         Minecraft minecraft = Minecraft.getMinecraft();
 
-        if (minecraft.isSingleplayer()) {
+        if (minecraft.isSingleplayer() || minecraft.getCurrentServerData() == null) {
             return false;
         }
 

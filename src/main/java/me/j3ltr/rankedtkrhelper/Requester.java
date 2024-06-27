@@ -12,12 +12,13 @@ import java.security.cert.CertificateException;
 
 public class Requester {
     public static final String PLAYER_DATA_URL = "https://data.heroku.com/dataclips/gupucelgdaeqhxyqleouxybmhdrh.json";
+    public static final String LATEST_MOD_PROPERTIES = "https://raw.githubusercontent.com/j3ltr/ranked-tkr-helper/master/gradle.properties";
 
     static SSLContext sslContext;
     static {
         try {
             KeyStore myKeyStore = KeyStore.getInstance("JKS");
-            myKeyStore.load(Requester.class.getResourceAsStream("/keystore.jks"), "changeit".toCharArray());
+            myKeyStore.load(Requester.class.getResourceAsStream("/rankedtkrhelper-keystore.jks"), "changeit".toCharArray());
             KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
             TrustManagerFactory tmf = TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm());
             kmf.init(myKeyStore, null);

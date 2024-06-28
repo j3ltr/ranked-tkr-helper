@@ -8,6 +8,7 @@ import kotlin.Unit;
 import me.j3ltr.rankedtkrhelper.commands.LastRaceCommand;
 import me.j3ltr.rankedtkrhelper.commands.RankedTkrHelperCommand;
 import me.j3ltr.rankedtkrhelper.entities.race.Race;
+import me.j3ltr.rankedtkrhelper.entities.round.RoundPlayerData;
 import me.j3ltr.rankedtkrhelper.utils.ClipboardUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiNewChat;
@@ -37,7 +38,7 @@ public class RankedTkrHelper {
 
     private Race currentRace = null;
     private final List<Race> previousRaces = new ArrayList<>();
-    private HashMap<String, Long> ignToDiscordId = null;
+    private List<RoundPlayerData> currentRoundPlayers = null;
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
@@ -110,12 +111,20 @@ public class RankedTkrHelper {
         return previousRaces.get(previousRaces.size() - 1);
     }
 
-    public HashMap<String, Long> getIgnToDiscordId() {
-        return ignToDiscordId;
+    public List<RoundPlayerData> getCurrentRoundPlayers() {
+        return currentRoundPlayers;
     }
 
-    public void setIgnToDiscordId(HashMap<String, Long> ignToDiscordId) {
-        this.ignToDiscordId = ignToDiscordId;
+    public void setCurrentRoundPlayers(List<RoundPlayerData> currentRoundPlayers) {
+        this.currentRoundPlayers = currentRoundPlayers;
+    }
+
+    public RoundPlayerData getRoundPlayerData(String minecraftName) {
+        return currentRoundPlayers
+                .stream()
+                .filter(crp -> crp.getMinecraftName().equals(minecraftName))
+                .findFirst()
+                .orElse(null);
     }
 
     private void checkForUpdates() {

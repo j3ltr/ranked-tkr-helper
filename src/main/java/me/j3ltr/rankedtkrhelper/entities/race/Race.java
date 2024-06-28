@@ -1,5 +1,7 @@
 package me.j3ltr.rankedtkrhelper.entities.race;
 
+import me.j3ltr.rankedtkrhelper.entities.round.RoundPlayerData;
+
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -36,21 +38,22 @@ public class Race {
         this.raceStatus = status;
     }
 
-    public String getDiscordCommand(HashMap<String, Long> ignToDiscordId) {
+    public String getDiscordCommand(List<RoundPlayerData> roundPlayers) {
         List<RacePlacement> sortedRacePlacements = new ArrayList<>(racePlacements);
         sortedRacePlacements.sort(Comparator.comparingInt(RacePlacement::getPosition));
 
         List<String> placementStrings = new ArrayList<>();
 
         for (RacePlacement rp : sortedRacePlacements) {
-            String discord;
-            if (ignToDiscordId != null && ignToDiscordId.containsKey(rp.getPlayer())) {
-                discord = "<@" + ignToDiscordId.get(rp.getPlayer()) + ">";
-            } else {
-                discord = rp.getPlayer();
+            RoundPlayerData rpd = null;
+
+            if (roundPlayers != null) {
+                rpd = roundPlayers.stream().filter(player -> player.getMinecraftName().equals(rp.getPlayer())).findFirst().orElse(null);
             }
 
-            placementStrings.add(rp.getPosition() + getPositionSuffix(rp.getPosition()) + ": " + discord);
+            String argument = rpd != null ? "<@" + rpd.getDiscordId() + ">" : rp.getPlayer();
+
+            placementStrings.add(rp.getPosition() + getPositionSuffix(rp.getPosition()) + ": " + argument);
         }
 
         return "/race map: " + map + " " + String.join(" ", placementStrings);

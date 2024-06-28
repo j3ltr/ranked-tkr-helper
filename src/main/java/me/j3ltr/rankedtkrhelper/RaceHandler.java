@@ -16,7 +16,6 @@ import net.minecraft.util.EnumChatFormatting;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import static me.j3ltr.rankedtkrhelper.utils.ClipboardUtil.copyToClipboard;
@@ -57,12 +56,14 @@ public class RaceHandler {
                     String minecraftName = valueArray.get(1).getAsString();
                     int teamNumber = valueArray.get(2).getAsInt();
 
-
                     currentRoundPlayers.add(new RoundPlayerData(discordId, minecraftName, teamNumber));
                 }
 
                 mod.setCurrentRoundPlayers(currentRoundPlayers);
-            } catch (Exception ignore) {}
+            } catch (Exception e) {
+                e.printStackTrace();
+                mod.sendMessage("Something went wrong while retrieving current round data.");
+            }
         });
         thread.start();
     }
@@ -87,14 +88,21 @@ public class RaceHandler {
 
         mod.sendMessage("The race has ended.");
 
-        copyToClipboard(mod.getPreviousRace().getDiscordCommand(mod.getCurrentRoundPlayers()));
+        if (Config.automaticallyCopyScoringCommand) {
+            copyToClipboard(mod.getPreviousRace().getDiscordCommand(mod.getCurrentRoundPlayers()));
+        }
 
         Minecraft.getMinecraft().addScheduledTask(() -> {
-            mod.sendMessage("The /race command has been copied to your clipboard. Use this in the round thread in Discord.");
+            ChatComponentText lastRaceCommandText;
 
-            ChatComponentText lastRaceCommandText = new ChatComponentText("Use /lastrace or click this message to copy the command again.");
+            if (Config.automaticallyCopyScoringCommand) {
+                mod.sendMessage("The scoring command has been copied to your clipboard.");
+                lastRaceCommandText = new ChatComponentText("Use /lastrace or click this message to copy the scoring command again.");
+            } else {
+                lastRaceCommandText = new ChatComponentText("Use /lastrace or click this message to copy the scoring command.");
+            }
+
             lastRaceCommandText.setChatStyle(new ChatStyle()
-                    .setBold(false)
                     .setUnderlined(true)
                     .setColor(EnumChatFormatting.BLUE)
                     .setChatClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/lastrace")));

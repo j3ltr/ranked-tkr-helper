@@ -2,8 +2,10 @@ package me.j3ltr.rankedtkrhelper;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
+import gg.essential.universal.ChatColor;
 import me.j3ltr.rankedtkrhelper.entities.race.RacePlacement;
 import me.j3ltr.rankedtkrhelper.entities.round.RoundPlayerData;
+import me.j3ltr.rankedtkrhelper.utils.RaceUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ChatComponentText;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
@@ -97,6 +99,27 @@ public class RaceListener {
         if (playerFinishChatMatcher.matches()) {
             String player = playerFinishChatMatcher.group("name");
             int position = Integer.parseInt(playerFinishChatMatcher.group("position"));
+
+            RoundPlayerData rpd = mod.getRoundPlayerData(player);
+
+            if (rpd != null) {
+                String message = event.message.getFormattedText();
+
+                if (Config.showTeamColorsSuffixes) {
+                    String[] teamNames = {"A", "B", "C", "D", "E", "F"};
+                    ChatColor[] teamColors = {ChatColor.RED, ChatColor.GOLD, ChatColor.YELLOW, ChatColor.GREEN, ChatColor.RED, ChatColor.AQUA, ChatColor.BLUE};
+
+                    int index = rpd.getTeamNumber() - 1;
+
+                    message = message.replace(player, teamColors[index] + player + " [" + teamNames[index] + "]");
+                }
+
+                if (Config.showPositionPoints) {
+                    message += ChatColor.GRAY + " [+" + RaceUtil.getPositionPoints(position) + "]";
+                }
+
+                event.message = new ChatComponentText(message);
+            }
 
             raceHandler.handlePlayerFinished(new RacePlacement(player, position));
 

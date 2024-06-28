@@ -33,7 +33,7 @@ public class LastRaceCommand extends CommandBase {
 
         copyToClipboard(mod.getPreviousRace().getDiscordCommand(mod.getCurrentRoundPlayers()));
 
-        mod.sendMessage("The /race command of the last race has been copied to your clipboard.");
+        mod.sendMessage("The scoring command of the last race has been copied to your clipboard.");
     }
 
     @Override

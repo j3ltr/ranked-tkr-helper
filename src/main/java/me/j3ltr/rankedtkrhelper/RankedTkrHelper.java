@@ -51,7 +51,9 @@ public class RankedTkrHelper {
 
     @Mod.EventHandler
     public void onLoadComplete(FMLLoadCompleteEvent event) {
-        checkForUpdates();
+        if (Config.checkForUpdates) {
+            checkForUpdates();
+        }
     }
 
     public void sendMessage(String message) {

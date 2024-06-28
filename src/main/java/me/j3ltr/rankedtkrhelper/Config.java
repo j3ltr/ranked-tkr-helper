@@ -16,6 +16,14 @@ public class Config extends Vigilant {
     )
     public static boolean isEnabled = true;
 
+    @Property(
+            type = PropertyType.SWITCH,
+            name = "Check for updates",
+            description = "Check for updates on startup and send a notification if there's a new version available.",
+            category = "General"
+    )
+    public static boolean checkForUpdates = true;
+
     public static Config INSTANCE = new Config();
 
     public Config() {

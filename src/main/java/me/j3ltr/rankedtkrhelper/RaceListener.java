@@ -107,7 +107,7 @@ public class RaceListener {
 
                 if (Config.showTeamColorsSuffixes) {
                     String[] teamNames = {"A", "B", "C", "D", "E", "F"};
-                    ChatColor[] teamColors = {ChatColor.RED, ChatColor.GOLD, ChatColor.YELLOW, ChatColor.GREEN, ChatColor.RED, ChatColor.AQUA, ChatColor.BLUE};
+                    ChatColor[] teamColors = {ChatColor.RED, ChatColor.GOLD, ChatColor.YELLOW, ChatColor.GREEN, ChatColor.AQUA, ChatColor.BLUE};
 
                     int index = rpd.getTeamNumber() - 1;
 

@@ -7,6 +7,7 @@ import me.j3ltr.rankedtkrhelper.entities.race.Race;
 import me.j3ltr.rankedtkrhelper.entities.race.RacePlacement;
 import me.j3ltr.rankedtkrhelper.entities.race.RaceStatus;
 import me.j3ltr.rankedtkrhelper.entities.round.RoundPlayerData;
+import me.j3ltr.rankedtkrhelper.utils.RaceUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.event.ClickEvent;
 import net.minecraft.util.ChatComponentText;
@@ -89,7 +90,7 @@ public class RaceHandler {
         mod.sendMessage("The race has ended.");
 
         if (Config.automaticallyCopyScoringCommand) {
-            copyToClipboard(mod.getPreviousRace().getDiscordCommand(mod.getCurrentRoundPlayers()));
+            copyToClipboard(RaceUtil.getDiscordCommand(mod.getPreviousRace(), mod.getCurrentRoundPlayers()));
         }
 
         Minecraft.getMinecraft().addScheduledTask(() -> {
@@ -97,15 +98,15 @@ public class RaceHandler {
 
             if (Config.automaticallyCopyScoringCommand) {
                 mod.sendMessage("The scoring command has been copied to your clipboard.");
-                lastRaceCommandText = new ChatComponentText("Use /lastrace or click this message to copy the scoring command again.");
+                lastRaceCommandText = new ChatComponentText("Use \"/rankedtkrhelper lastrace\" or click this message to copy the scoring command again.");
             } else {
-                lastRaceCommandText = new ChatComponentText("Use /lastrace or click this message to copy the scoring command.");
+                lastRaceCommandText = new ChatComponentText("Use \"/rankedtkrhelper lastrace\" or click this message to copy the scoring command.");
             }
 
             lastRaceCommandText.setChatStyle(new ChatStyle()
                     .setUnderlined(true)
                     .setColor(EnumChatFormatting.BLUE)
-                    .setChatClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/lastrace")));
+                    .setChatClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/rankedtkrhelper lastrace")));
 
             mod.sendMessage(lastRaceCommandText);
         });

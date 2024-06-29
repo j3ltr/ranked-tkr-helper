@@ -1,45 +1,48 @@
 package me.j3ltr.rankedtkrhelper.commands;
 
+import gg.essential.api.commands.Command;
+import gg.essential.api.commands.DefaultHandler;
+import gg.essential.api.commands.SubCommand;
 import gg.essential.api.utils.GuiUtil;
 import me.j3ltr.rankedtkrhelper.Config;
 import me.j3ltr.rankedtkrhelper.RankedTkrHelper;
-import net.minecraft.command.CommandBase;
-import net.minecraft.command.CommandException;
-import net.minecraft.command.ICommandSender;
+import me.j3ltr.rankedtkrhelper.utils.RaceUtil;
 
-import java.util.Arrays;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
-public class RankedTkrHelperCommand extends CommandBase {
+import static me.j3ltr.rankedtkrhelper.utils.ClipboardUtil.copyToClipboard;
+
+public class RankedTkrHelperCommand extends Command {
     private final RankedTkrHelper mod;
 
     public RankedTkrHelperCommand(RankedTkrHelper mod) {
+        super("rankedtkrhelper", false);
+
         this.mod = mod;
     }
 
     @Override
-    public String getCommandName() {
-        return "rankedtkrhelper";
+    public Set<Alias> getCommandAliases() {
+        Set<Alias> aliases = new HashSet<>();
+        aliases.add(new Alias("rtkrh"));
+        return aliases;
     }
 
-    @Override
-    public String getCommandUsage(ICommandSender sender) {
-        return "/rankedtkrhelper";
-    }
-
-    @Override
-    public List<String> getCommandAliases() {
-        return Arrays.asList("rtkrh");
-    }
-
-
-    @Override
-    public void processCommand(ICommandSender sender, String[] args) throws CommandException {
+    @DefaultHandler
+    public void handle() {
         GuiUtil.open(Config.INSTANCE.gui());
     }
 
-    @Override
-    public boolean canCommandSenderUseCommand(ICommandSender sender) {
-        return true;
+    @SubCommand(value = "lastrace")
+    public void handleLastRace() {
+        if (mod.getPreviousRace() == null) {
+            mod.sendMessage("No races have been recorded yet.");
+            return;
+        }
+
+        copyToClipboard(RaceUtil.getDiscordCommand(mod.getPreviousRace(), mod.getCurrentRoundPlayers()));
+
+        mod.sendMessage("The scoring command of the last race has been copied to your clipboard.");
     }
 }

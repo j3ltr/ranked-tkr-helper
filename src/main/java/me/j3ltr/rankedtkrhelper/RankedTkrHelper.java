@@ -5,7 +5,6 @@ import gg.essential.api.EssentialAPI;
 import gg.essential.api.gui.Notifications;
 import gg.essential.universal.UDesktop;
 import kotlin.Unit;
-import me.j3ltr.rankedtkrhelper.commands.LastRaceCommand;
 import me.j3ltr.rankedtkrhelper.commands.RankedTkrHelperCommand;
 import me.j3ltr.rankedtkrhelper.entities.race.Race;
 import me.j3ltr.rankedtkrhelper.entities.round.RoundPlayerData;
@@ -16,7 +15,6 @@ import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatStyle;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IChatComponent;
-import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
@@ -45,8 +43,7 @@ public class RankedTkrHelper {
         RaceHandler raceHandler = new RaceHandler(this);
         MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.register(new RaceListener(this, raceHandler));
-        ClientCommandHandler.instance.registerCommand(new LastRaceCommand(this));
-        ClientCommandHandler.instance.registerCommand(new RankedTkrHelperCommand(this));
+        EssentialAPI.getCommandRegistry().registerCommand(new RankedTkrHelperCommand(this));
     }
 
     @Mod.EventHandler
@@ -161,11 +158,12 @@ public class RankedTkrHelper {
                 try {
                     UDesktop.browse(URI.create(updateLink));
                 } catch (Exception openException) {
-                    notifications.push("Ranked TKR Helper", "Failed to open Github Release page. Link is now copied to your clipboard.");
+                    notifications.push("Ranked TKR Helper", "Failed to open the Github Release page. The link is now copied to your clipboard.");
+
                     try {
                         ClipboardUtil.copyToClipboard(updateLink);
                     } catch (Exception clipboardException) {
-                        notifications.push("Ranked TKR Helper", "Failed to copy Github Release page link to clipboard.");
+                        notifications.push("Ranked TKR Helper", "Failed to copy the Github Release page link to your clipboard.");
                     }
                 }
 

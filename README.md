@@ -18,7 +18,7 @@ You can read this [wiki article](https://essential.gg/wiki/installed-by-other-mo
 #### Want to compile the project yourself?
 Instead of grabbing the `.jar` file from the Github Release page, you can compile the project yourself.
 
-Simply download or clone the project and run `gradlew build` inside the project folder, optionally specifying the JDK version by adding `-Dorg.gradle.java.home=JDK_PATH`.
-Make sure to use JDK version 16 or higher.
+Simply download or clone the project and run `gradlew build` inside the project folder, optionally specifying the JDK version by adding `-Dorg.gradle.java.home=<JDK_PATH>`.
+Make sure to use JDK version 17.
 
 If the build is successful, you can find the `.jar` file in the `build/libs` folder.

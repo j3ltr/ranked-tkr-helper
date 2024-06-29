@@ -1,21 +1,30 @@
 package me.j3ltr.rankedtkrhelper;
 
 import com.google.gson.Gson;
-import me.j3ltr.rankedtkrhelper.commands.LastRaceCommand;
+import gg.essential.api.EssentialAPI;
+import gg.essential.api.gui.Notifications;
+import gg.essential.universal.UDesktop;
+import kotlin.Unit;
+import me.j3ltr.rankedtkrhelper.commands.RankedTkrHelperCommand;
 import me.j3ltr.rankedtkrhelper.entities.race.Race;
+import me.j3ltr.rankedtkrhelper.entities.round.RoundPlayerData;
+import me.j3ltr.rankedtkrhelper.utils.ClipboardUtil;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiNewChat;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.ChatStyle;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IChatComponent;
-import net.minecraftforge.client.ClientCommandHandler;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLLoadCompleteEvent;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.io.*;
+import java.net.URI;
+import java.net.URL;
+import java.util.*;
 import java.util.List;
 
 @Mod(modid = "rankedtkrhelper", useMetadata=true)
@@ -27,13 +36,21 @@ public class RankedTkrHelper {
 
     private Race currentRace = null;
     private final List<Race> previousRaces = new ArrayList<>();
-    private HashMap<String, Long> ignToDiscordId = null;
+    private List<RoundPlayerData> currentRoundPlayers = null;
 
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
         RaceHandler raceHandler = new RaceHandler(this);
+        MinecraftForge.EVENT_BUS.register(this);
         MinecraftForge.EVENT_BUS.register(new RaceListener(this, raceHandler));
-        ClientCommandHandler.instance.registerCommand(new LastRaceCommand(this));
+        EssentialAPI.getCommandRegistry().registerCommand(new RankedTkrHelperCommand(this));
+    }
+
+    @Mod.EventHandler
+    public void onLoadComplete(FMLLoadCompleteEvent event) {
+        if (Config.checkForUpdates) {
+            checkForUpdates();
+        }
     }
 
     public void sendMessage(String message) {
@@ -55,6 +72,11 @@ public class RankedTkrHelper {
 
     public boolean isPlayerOnHypixel() {
         Minecraft minecraft = Minecraft.getMinecraft();
+
+        if (minecraft.isSingleplayer() || minecraft.getCurrentServerData() == null) {
+            return false;
+        }
+
         String serverIp = minecraft.getCurrentServerData().serverIP;
 
         return serverIp.endsWith("hypixel.net");
@@ -88,11 +110,65 @@ public class RankedTkrHelper {
         return previousRaces.get(previousRaces.size() - 1);
     }
 
-    public HashMap<String, Long> getIgnToDiscordId() {
-        return ignToDiscordId;
+    public List<RoundPlayerData> getCurrentRoundPlayers() {
+        return currentRoundPlayers;
     }
 
-    public void setIgnToDiscordId(HashMap<String, Long> ignToDiscordId) {
-        this.ignToDiscordId = ignToDiscordId;
+    public void setCurrentRoundPlayers(List<RoundPlayerData> currentRoundPlayers) {
+        this.currentRoundPlayers = currentRoundPlayers;
+    }
+
+    public RoundPlayerData getRoundPlayerData(String minecraftName) {
+        return currentRoundPlayers
+                .stream()
+                .filter(crp -> crp.getMinecraftName().equals(minecraftName))
+                .findFirst()
+                .orElse(null);
+    }
+
+    private void checkForUpdates() {
+        String currentVersion = FMLCommonHandler.instance().findContainerFor(this).getVersion();
+        String latestVersion;
+
+        try {
+            Properties properties = new Properties();
+            URL url = new URL(Requester.LATEST_MOD_PROPERTIES);
+            InputStream input = Requester.openHTTPSConnection(url).getInputStream();
+
+            properties.load(input);
+
+            latestVersion = properties.getProperty("version");
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
+
+        if (latestVersion == null) {
+            return;
+        }
+
+        if (!currentVersion.equals(latestVersion)) {
+            Notifications notifications = EssentialAPI.getNotifications();
+
+            notifications.push("Ranked TKR Helper", "A new version is available! " +
+                    "Click to open the Github Release page of the latest version.", 10, () -> {
+
+                String updateLink = "https://github.com/j3ltr/ranked-tkr-helper/releases/latest";
+
+                try {
+                    UDesktop.browse(URI.create(updateLink));
+                } catch (Exception openException) {
+                    notifications.push("Ranked TKR Helper", "Failed to open the Github Release page. The link is now copied to your clipboard.");
+
+                    try {
+                        ClipboardUtil.copyToClipboard(updateLink);
+                    } catch (Exception clipboardException) {
+                        notifications.push("Ranked TKR Helper", "Failed to copy the Github Release page link to your clipboard.");
+                    }
+                }
+
+                return Unit.INSTANCE;
+            });
+        }
     }
 }

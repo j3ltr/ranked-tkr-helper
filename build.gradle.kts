@@ -13,42 +13,42 @@ plugins {
 val baseGroup: String by project
 val mcVersion: String by project
 val version: String by project
-val mixinGroup = "$baseGroup.mixin"
 val modid: String by project
 
 // Toolchains:
+
 java {
     toolchain.languageVersion.set(JavaLanguageVersion.of(8))
 }
 
 // Minecraft configuration:
+
 loom {
     log4jConfigs.from(file("log4j2.xml"))
+
     launchConfigs {
         "client" {
-            // If you don't want mixins, remove these lines
-//            property("mixin.debug", "true")
-//            arg("--tweakClass", "org.spongepowered.asm.launch.MixinTweaker")
+            property("devauth.enabled", "true")
+            property("devauth.account", "main")
         }
     }
+
     runConfigs {
         "client" {
             if (SystemUtils.IS_OS_MAC_OSX) {
                 // This argument causes a crash on macOS
                 vmArgs.remove("-XstartOnFirstThread")
             }
+
+            programArgs("--tweakClass", "gg.essential.loader.stage0.EssentialSetupTweaker")
         }
+
         remove(getByName("server"))
     }
+
     forge {
         pack200Provider.set(dev.architectury.pack200.java.Pack200Adapter())
-        // If you don't want mixins, remove this lines
-//        mixinConfig("mixins.$modid.json")
     }
-    // If you don't want mixins, remove these lines
-//    mixin {
-//        defaultRefmapName.set("mixins.$modid.refmap.json")
-//    }
 }
 
 sourceSets.main {
@@ -60,7 +60,7 @@ sourceSets.main {
 repositories {
     mavenCentral()
     maven("https://repo.spongepowered.org/maven/")
-    // If you don't want to log in with your real minecraft account, remove this line
+    maven("https://repo.essential.gg/repository/maven-public")
     maven("https://pkgs.dev.azure.com/djtheredstoner/DevAuth/_packaging/public/maven/v1")
 }
 
@@ -68,21 +68,15 @@ val shadowImpl: Configuration by configurations.creating {
     configurations.implementation.get().extendsFrom(this)
 }
 
+
 dependencies {
     minecraft("com.mojang:minecraft:1.8.9")
     mappings("de.oceanlabs.mcp:mcp_stable:22-1.8.9")
     forge("net.minecraftforge:forge:1.8.9-11.15.1.2318-1.8.9")
-//    shadowImpl("com.squareup.okhttp3:okhttp:4.12.0")
-
-    // If you don't want mixins, remove these lines
-//    shadowImpl("org.spongepowered:mixin:0.7.11-SNAPSHOT") {
-//        isTransitive = false
-//    }
-//    annotationProcessor("org.spongepowered:mixin:0.8.5-SNAPSHOT")
-
-    // If you don't want to log in with your real minecraft account, remove this line
+    shadowImpl("gg.essential:loader-launchwrapper:1.2.1")
+    compileOnly("gg.essential:essential-1.8.9-forge:17141+gd6f4cfd3a8")
+    compileOnly("org.jetbrains.kotlin:kotlin-stdlib:2.0.0")
     runtimeOnly("me.djtheredstoner:DevAuth-forge-legacy:1.1.2")
-
 }
 
 // Tasks:
@@ -96,20 +90,16 @@ tasks.withType(Jar::class) {
     manifest.attributes.run {
         this["FMLCorePluginContainsFMLMod"] = "true"
         this["ForceLoadAsMod"] = "true"
-
-        // If you don't want mixins, remove these lines
-//        this["TweakClass"] = "org.spongepowered.asm.launch.MixinTweaker"
-//        this["MixinConfigs"] = "mixins.$modid.json"
     }
 }
 
 tasks.processResources {
-    inputs.property("version", project.version)
+    inputs.property("version", version)
     inputs.property("mcversion", mcVersion)
     inputs.property("modid", modid)
     inputs.property("basePackage", baseGroup)
 
-    filesMatching(listOf("mcmod.info", "mixins.$modid.json")) {
+    filesMatching(listOf("mcmod.info")) {
         expand(inputs.properties)
     }
 
@@ -126,6 +116,13 @@ val remapJar by tasks.named<net.fabricmc.loom.task.RemapJarTask>("remapJar") {
 tasks.jar {
     archiveClassifier.set("without-deps")
     destinationDirectory.set(layout.buildDirectory.dir("badjars"))
+
+    manifest.attributes(mapOf(
+        "ModSide" to "CLIENT",
+        "FMLCorePluginContainsFMLMod" to "Yes, yes it does",
+        "TweakClass" to "gg.essential.loader.stage0.EssentialSetupTweaker",
+        "TweakOrder" to "0"
+    ))
 }
 
 tasks.shadowJar {
@@ -140,6 +137,8 @@ tasks.shadowJar {
 
     // If you want to include other dependencies and shadow them, you can relocate them in here
     fun relocate(name: String) = relocate(name, "$baseGroup.deps.$name")
+
+    mergeServiceFiles()
 }
 
 tasks.assemble.get().dependsOn(tasks.remapJar)

@@ -1,9 +1,13 @@
 package me.j3ltr.rankedtkrhelper;
 
-import com.google.gson.JsonSyntaxException;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonSyntaxException;
+import gg.essential.universal.ChatColor;
 import me.j3ltr.rankedtkrhelper.entities.race.RacePlacement;
+import me.j3ltr.rankedtkrhelper.entities.round.RoundPlayerData;
+import me.j3ltr.rankedtkrhelper.utils.RaceUtil;
 import net.minecraft.client.Minecraft;
+import net.minecraft.util.ChatComponentText;
 import net.minecraftforge.client.event.ClientChatReceivedEvent;
 import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -38,7 +42,7 @@ public class RaceListener {
     // TODO: Fix onWorldLoad also firing when pausing for the first time after the world has loaded.
     @SubscribeEvent
     public void onWorldLoad(WorldEvent.Load event) {
-        if (!mod.isPlayerOnHypixel()) {
+        if (!mod.isPlayerOnHypixel() || !Config.isEnabled) {
             return;
         }
 
@@ -49,7 +53,7 @@ public class RaceListener {
 
     @SubscribeEvent
     public void onPlayerTick(TickEvent.PlayerTickEvent event) {
-        if (!mod.isPlayerOnHypixel()) {
+        if (!mod.isPlayerOnHypixel()  || !Config.isEnabled) {
             return;
         }
 
@@ -62,7 +66,7 @@ public class RaceListener {
 
     @SubscribeEvent
     public void onClientChatReceived(ClientChatReceivedEvent event) {
-        if (!mod.isPlayerOnHypixel()) {
+        if (!mod.isPlayerOnHypixel()  || !Config.isEnabled) {
             return;
         }
 
@@ -76,7 +80,11 @@ public class RaceListener {
             try {
                 JsonObject response = mod.getGson().fromJson(messageText, JsonObject.class);
 
-                if (response.has("gametype") && response.get("gametype").getAsString().equals("GINGERBREAD")) {
+                if (response == null) {
+                    return;
+                }
+                if (response.has("gametype") &&
+                    response.get("gametype").getAsString().equals("GINGERBREAD")) {
                     raceHandler.handleServerInfoReceived(response);
                 }
 
@@ -91,6 +99,27 @@ public class RaceListener {
         if (playerFinishChatMatcher.matches()) {
             String player = playerFinishChatMatcher.group("name");
             int position = Integer.parseInt(playerFinishChatMatcher.group("position"));
+
+            RoundPlayerData rpd = mod.getRoundPlayerData(player);
+
+            if (rpd != null) {
+                String message = event.message.getFormattedText();
+
+                if (Config.showTeamColorsSuffixes) {
+                    String[] teamNames = {"A", "B", "C", "D", "E", "F"};
+                    ChatColor[] teamColors = {ChatColor.RED, ChatColor.GOLD, ChatColor.YELLOW, ChatColor.GREEN, ChatColor.AQUA, ChatColor.BLUE};
+
+                    int index = rpd.getTeamNumber() - 1;
+
+                    message = message.replace(player, teamColors[index] + player + " [" + teamNames[index] + "]");
+                }
+
+                if (Config.showPositionPoints) {
+                    message += ChatColor.GRAY + " [+" + RaceUtil.getPositionPoints(position) + "]";
+                }
+
+                event.message = new ChatComponentText(message);
+            }
 
             raceHandler.handlePlayerFinished(new RacePlacement(player, position));
 
